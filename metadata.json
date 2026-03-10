@@ -1,0 +1,5 @@
+{
+  "name": "Bauhaus Metronome",
+  "description": "A Bauhaus-style metronome with adjustable tempo, time signature, and sound.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #F2EFE9;
+}
+
+/* Custom Bauhaus Range Slider */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 40px;
+  width: 24px;
+  border-radius: 0;
+  background: #E32636;
+  cursor: pointer;
+  border: 4px solid #1A1A1A;
+  margin-top: -14px;
+  box-shadow: 4px 4px 0px 0px #1A1A1A;
+  transition: transform 0.1s;
+}
+
+input[type=range]::-webkit-slider-thumb:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #1A1A1A;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+  background: #1A1A1A;
+  border: 2px solid #1A1A1A;
+}
+
+input[type=range]::-moz-range-thumb {
+  height: 40px;
+  width: 24px;
+  border-radius: 0;
+  background: #E32636;
+  cursor: pointer;
+  border: 4px solid #1A1A1A;
+  box-shadow: 4px 4px 0px 0px #1A1A1A;
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+  background: #1A1A1A;
+  border: 2px solid #1A1A1A;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #F2EFE9;
+  border: 4px solid #1A1A1A;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1A1A1A;
+  border: 2px solid #F2EFE9;
+}
