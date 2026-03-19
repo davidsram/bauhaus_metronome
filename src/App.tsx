@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Metronome } from './lib/metronome';
-import { Save, Trash2, Play } from 'lucide-react';
+import { Save, Trash2, Play, Maximize, Minimize } from 'lucide-react';
 
 interface Preset {
   id: string;
@@ -11,7 +11,7 @@ interface Preset {
 }
 
 export default function App() {
-  const [bpm, setBpm] = useState(120);
+  const [bpm, setBpm] = useState<number | ''>(120);
   const [isPlaying, setIsPlaying] = useState(false);
   const [beatsPerMeasure, setBeatsPerMeasure] = useState(4);
   const [soundType, setSoundType] = useState<'beep' | 'click' | 'woodblock'>('beep');
@@ -22,8 +22,29 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [presetName, setPresetName] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const metronomeRef = useRef<Metronome | null>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   useEffect(() => {
     metronomeRef.current = new Metronome((beat) => {
@@ -36,7 +57,8 @@ export default function App() {
 
   useEffect(() => {
     if (metronomeRef.current) {
-      metronomeRef.current.setTempo(bpm);
+      const safeBpm = typeof bpm === 'number' ? Math.max(10, Math.min(300, bpm)) : 120;
+      metronomeRef.current.setTempo(safeBpm);
       metronomeRef.current.setBeatsPerMeasure(beatsPerMeasure);
       metronomeRef.current.setSoundType(soundType);
     }
@@ -58,18 +80,31 @@ export default function App() {
   };
 
   const handleBpmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === '') {
+      setBpm('');
+      return;
+    }
     const val = parseInt(e.target.value, 10);
     if (!isNaN(val)) {
-      setBpm(Math.min(300, Math.max(10, val)));
+      setBpm(val);
+    }
+  };
+
+  const handleBpmBlur = () => {
+    if (bpm === '' || bpm < 10) {
+      setBpm(10);
+    } else if (bpm > 300) {
+      setBpm(300);
     }
   };
 
   const savePreset = () => {
     if (!presetName.trim()) return;
+    const safeBpm = typeof bpm === 'number' ? Math.max(10, Math.min(300, bpm)) : 120;
     const newPreset: Preset = {
       id: Date.now().toString(),
       name: presetName.trim(),
-      bpm,
+      bpm: safeBpm,
       beatsPerMeasure,
       soundType,
     };
@@ -77,10 +112,21 @@ export default function App() {
     setPresetName('');
   };
 
-  const loadPreset = (preset: Preset) => {
+  const loadPreset = (preset: Preset, shouldPlay: boolean = false) => {
     setBpm(preset.bpm);
     setBeatsPerMeasure(preset.beatsPerMeasure);
     setSoundType(preset.soundType);
+
+    if (metronomeRef.current) {
+      metronomeRef.current.setTempo(preset.bpm);
+      metronomeRef.current.setBeatsPerMeasure(preset.beatsPerMeasure);
+      metronomeRef.current.setSoundType(preset.soundType);
+      
+      if (shouldPlay && !isPlaying) {
+        metronomeRef.current.start();
+        setIsPlaying(true);
+      }
+    }
   };
 
   const deletePreset = (id: string) => {
@@ -88,7 +134,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2EFE9] text-[#1A1A1A] font-sans p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-[#E32636] selection:text-white">
+    <div className="min-h-[100dvh] w-full bg-[#F2EFE9] text-[#1A1A1A] font-sans p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-[#E32636] selection:text-white">
       <div className="w-full max-w-md border-8 border-[#1A1A1A] bg-white p-6 sm:p-10 shadow-[16px_16px_0px_0px_#1A1A1A] relative my-8">
         
         {/* Decorative Bauhaus elements */}
@@ -102,7 +148,16 @@ export default function App() {
             <h1 className="text-4xl sm:text-5xl font-black tracking-tighter uppercase">
               Tempo
             </h1>
-            <div className="w-8 h-8 bg-[#E32636] rounded-full border-4 border-[#1A1A1A]"></div>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={toggleFullscreen}
+                className="p-2 border-4 border-[#1A1A1A] bg-white active:translate-y-1 transition-transform"
+                title="Toggle Fullscreen"
+              >
+                {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+              </button>
+              <div className="w-8 h-8 bg-[#E32636] rounded-full border-4 border-[#1A1A1A]"></div>
+            </div>
           </div>
 
           {/* BPM Display & Input */}
@@ -112,6 +167,7 @@ export default function App() {
                 type="number"
                 value={bpm}
                 onChange={handleBpmChange}
+                onBlur={handleBpmBlur}
                 className="text-7xl sm:text-8xl font-black text-center w-48 bg-transparent outline-none"
                 min="10"
                 max="300"
@@ -126,7 +182,7 @@ export default function App() {
               type="range"
               min="10"
               max="300"
-              value={bpm}
+              value={bpm === '' ? 10 : bpm}
               onChange={(e) => setBpm(Number(e.target.value))}
             />
           </div>
@@ -223,7 +279,11 @@ export default function App() {
             {presets.length > 0 && (
               <div className="flex flex-col gap-3 mt-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                 {presets.map(preset => (
-                  <div key={preset.id} className="flex items-center justify-between border-4 border-[#1A1A1A] p-3 bg-white">
+                  <div 
+                    key={preset.id} 
+                    onClick={() => loadPreset(preset, false)}
+                    className="flex items-center justify-between border-4 border-[#1A1A1A] p-3 bg-white hover:bg-[#F2EFE9] transition-colors cursor-pointer active:scale-[0.99]"
+                  >
                     <div className="flex flex-col overflow-hidden">
                       <span className="font-black uppercase text-lg truncate">{preset.name}</span>
                       <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
@@ -232,14 +292,20 @@ export default function App() {
                     </div>
                     <div className="flex gap-2 ml-2 shrink-0">
                       <button
-                        onClick={() => loadPreset(preset)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          loadPreset(preset, true);
+                        }}
                         className="bg-[#FFD700] p-2 border-4 border-[#1A1A1A] active:translate-y-1 transition-transform"
-                        title="Load Preset"
+                        title="Load and Play Preset"
                       >
                         <Play size={20} className="fill-current" />
                       </button>
                       <button
-                        onClick={() => deletePreset(preset.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deletePreset(preset.id);
+                        }}
                         className="bg-[#E32636] text-white p-2 border-4 border-[#1A1A1A] active:translate-y-1 transition-transform"
                         title="Delete Preset"
                       >

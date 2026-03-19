@@ -64,25 +64,26 @@ export class Metronome {
     gainNode.connect(this.audioContext.destination);
 
     const isAccent = this.currentBeat === 0;
+    const velocity = isAccent ? 1.0 : 0.3; // Accent is much louder
 
     if (this.soundType === 'beep') {
       osc.type = 'sine';
-      osc.frequency.value = isAccent ? 880 : 440;
-      gainNode.gain.setValueAtTime(1, time);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+      osc.frequency.value = isAccent ? 1046.50 : 523.25; // C6 vs C5
+      gainNode.gain.setValueAtTime(velocity, time);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, time + (isAccent ? 0.15 : 0.1));
       osc.start(time);
-      osc.stop(time + 0.1);
+      osc.stop(time + (isAccent ? 0.15 : 0.1));
     } else if (this.soundType === 'click') {
       osc.type = 'square';
-      osc.frequency.value = isAccent ? 600 : 300;
-      gainNode.gain.setValueAtTime(0.5, time);
+      osc.frequency.value = isAccent ? 800 : 400;
+      gainNode.gain.setValueAtTime(velocity, time);
       gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
       osc.start(time);
       osc.stop(time + 0.02);
     } else if (this.soundType === 'woodblock') {
       osc.type = 'triangle';
-      osc.frequency.value = isAccent ? 1000 : 800;
-      gainNode.gain.setValueAtTime(1, time);
+      osc.frequency.value = isAccent ? 1200 : 800;
+      gainNode.gain.setValueAtTime(velocity, time);
       gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
       osc.start(time);
       osc.stop(time + 0.05);

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#F2EFE9"/>
+  <!-- Outer Border -->
+  <rect x="32" y="32" width="448" height="448" fill="none" stroke="#1A1A1A" stroke-width="24"/>
+  <!-- Blue Base -->
+  <rect x="126" y="360" width="260" height="60" fill="#005A9C" stroke="#1A1A1A" stroke-width="20"/>
+  <!-- Yellow Body -->
+  <polygon points="256,120 156,360 356,360" fill="#FFD700" stroke="#1A1A1A" stroke-width="20" stroke-linejoin="round"/>
+  <!-- Pendulum Stick -->
+  <line x1="256" y1="340" x2="160" y2="160" stroke="#1A1A1A" stroke-width="20" stroke-linecap="round"/>
+  <!-- Red Weight -->
+  <circle cx="190" cy="215" r="40" fill="#E32636" stroke="#1A1A1A" stroke-width="20"/>
+  <!-- Pivot point -->
+  <circle cx="256" cy="330" r="16" fill="#1A1A1A"/>
+</svg>
